@@ -260,31 +260,39 @@ function Movie() {
           </div>
         )}
 
-        <div className="review-form-container">
-          <h2 className="review-form-headline">{editingReview ? 'Edit Review' : 'Add a Review'}</h2>
-          <form onSubmit={handleSubmit} className="review-form">
-            <textarea
-              name="reviewText"
-              value={reviewText}
-              onChange={(e) => setReviewText(e.target.value)}
-              placeholder="Write your review here..."
-              required
-            />
-            <input
-              type="number"
-              name="rating"
-              min="1"
-              max="10"
-              value={rating}
-              onChange={(e) => setRating(e.target.value)}
-              placeholder="Rating (1-10)"
-              required
-            />
-            <button type="submit" className="review-button review-button-submit">
-              {editingReview ? 'Save Changes' : 'Submit Review'}
-            </button>
-          </form>
-        </div>
+<div className="bg-white p-6 rounded-lg shadow-md mt-4">
+  <h2 className="text-2xl font-bold text-gray-800 mb-4 border-b-2 border-gray-200 pb-2">
+    {editingReview ? 'Edit Review' : 'Add a Review'}
+  </h2>
+  <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
+    <textarea
+      name="reviewText"
+      value={reviewText}
+      onChange={(e) => setReviewText(e.target.value)}
+      placeholder="Write your review here..."
+      required
+      className="w-full p-3 border border-gray-300 rounded-lg resize-y focus:outline-none focus:border-blue-500 transition duration-300"
+    />
+    <input
+      type="number"
+      name="rating"
+      min="1"
+      max="10"
+      value={rating}
+      onChange={(e) => setRating(e.target.value)}
+      placeholder="Rating (1-10)"
+      required
+      className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 transition duration-300"
+    />
+    <button
+      type="submit"
+      className="p-3 bg-green-500 text-white rounded-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-300"
+    >
+      {editingReview ? 'Save Changes' : 'Submit Review'}
+    </button>
+  </form>
+</div>
+
 
         <div className="reviews-container">
           <h2 className="reviews-headline">Reviews</h2>
