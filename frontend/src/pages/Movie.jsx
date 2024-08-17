@@ -6,16 +6,23 @@ import TextInputForm from '../components/TextInputForm';
 import '../pages/movie.css'; // Import the CSS file
 
 function Movie() {
-  const { id } = useParams(); // Get the movie ID from the URL
+  const { userId, movieId } = useParams(); 
+  console.log('User ID:', userId); // Debug statement
   const [reviews, setReviews] = useState([]); // Initialize as empty array
   const [movie, setMovie] = useState(null);
-  const [user, setUser] = useState(null);
+  const [editingReview, setEditingReview] = useState(null); // State to manage the review being edited
+  const [editedReviewText, setEditedReviewText] = useState('');
+  const [editedRating, setEditedRating] = useState('');
 
   useEffect(() => {
-    // Fetch movie data and reviews
+    if (!movieId) {
+      console.error('Movie ID is missing.');
+      return;
+    }
+
     const fetchMovieData = async () => {
       try {
-        const movieResponse = await axios.get(`http://localhost:3000/api/v1/users/getmoviewithreviews/${id}`, { withCredentials: true });
+        const movieResponse = await axios.get(`http://localhost:3000/api/v1/users/getmoviewithreviews/${movieId}`, { withCredentials: true });
         setMovie(movieResponse.data.movie); // movieResponse.data.movie contains movie details and reviews
         setReviews(movieResponse.data.movie.reviews || []); // Ensure reviews is an array from movie object
       } catch (error) {
@@ -23,24 +30,14 @@ function Movie() {
       }
     };
 
-    // Fetch user data from the token stored in the cookie
-    const fetchUserData = async () => {
-      try {
-        const userResponse = await axios.get('http://localhost:3000/api/v1/users/currentuser', { withCredentials: true });
-        setUser(userResponse.data);
-      } catch (error) {
-        console.error('Error fetching user data', error);
-      }
-    };
-
+    console.log('Movie ID:', movieId); // Correct debug statement
     fetchMovieData();
-    fetchUserData();
-  }, [id]);
+  }, [movieId]); // Correct dependency
 
   // Handler for deleting a review
   const handleDelete = async (reviewId) => {
     try {
-      await axios.delete(`http://localhost:3000/api/v1/reviews/${reviewId}`, { withCredentials: true });
+      await axios.delete(`http://localhost:3000/api/v1/users/deletereview/${reviewId}`, { withCredentials: true });
       // Remove the deleted review from state
       setReviews(reviews.filter(review => review.id !== reviewId));
     } catch (error) {
@@ -49,10 +46,36 @@ function Movie() {
   };
 
   // Handler for editing a review
-  const handleEdit = (reviewId) => {
-    // Implement the edit functionality
-    // You might want to set the review to be edited and show an edit form or modal
-    console.log('Edit review with ID:', reviewId);
+  const handleEdit = (review) => {
+    // Set the review to be edited
+    setEditingReview(review);
+    setEditedReviewText(review.reviewText);
+    setEditedRating(review.rating);
+  };
+
+  // Handle form submission for editing review
+  const handleEditSubmit = async (event) => {
+    event.preventDefault();
+    if (editingReview) {
+      try {
+        await axios.put(`http://localhost:3000/api/v1/users/updatereview/${editingReview.id}`, {
+          reviewText: editedReviewText,
+          rating: editedRating
+        }, { withCredentials: true });
+
+        // Update the review in the state
+        setReviews(reviews.map(review => 
+          review.id === editingReview.id ? { ...review, reviewText: editedReviewText, rating: editedRating } : review
+        ));
+
+        // Clear editing state
+        setEditingReview(null);
+        setEditedReviewText('');
+        setEditedRating('');
+      } catch (error) {
+        console.error('Error updating review', error);
+      }
+    }
   };
 
   return (
@@ -74,7 +97,14 @@ function Movie() {
           </div>
         )}
 
-        <TextInputForm className="text-input-form" />
+        <TextInputForm 
+          movieId={movieId} 
+          userId = {userId}
+          onEditSubmit={handleEditSubmit} 
+          editingReview={editingReview} 
+          setEditedReviewText={setEditedReviewText} 
+          setEditedRating={setEditedRating}
+        />
 
         <div className="reviews-container">
           <h2 className="reviews-headline">Reviews</h2> {/* Reviews headline */}
@@ -83,11 +113,12 @@ function Movie() {
               <div key={review.id} className="review-item">
                 <h3 className="review-user">{review.user?.fullName || 'Anonymous'}</h3>
                 <p className="review-text">{review.reviewText}</p>
-                {user && String(review.userId) === String(user.id) && (
+                <p className="review-rating">Rating: {review.rating}</p>
+                {userId && String(review.userId) === String(userId) && (
                   <div className="review-actions">
                     <button
                       className="review-button review-button-edit"
-                      onClick={() => handleEdit(review.id)}
+                      onClick={() => handleEdit(review)}
                     >
                       Edit
                     </button>

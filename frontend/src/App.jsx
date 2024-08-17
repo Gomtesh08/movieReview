@@ -15,8 +15,8 @@ function App() {
           <Route path='/' element={<Home />} />
           <Route path='/register' element={<Register />} />
           <Route path='/login' element={<Login />} />
-          <Route path='/movies' element={<Movies />} />
-          <Route path='/getmoviewithreviews/:id' element={<Movie />} />
+          <Route path='/movies/:id' element={<Movies />} />
+          <Route path='/movies/:userId/getmoviewithreviews/:movieId' element={<Movie />} />
         </Routes>
       </BrowserRouter>
     </div>

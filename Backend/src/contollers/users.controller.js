@@ -2,38 +2,63 @@ import { PrismaClient } from '@prisma/client';
 import { asyncHandler } from '../utils/asyncHandler.js';
 import { ApiError} from '../utils/ApiError.js'
 import {ApiResponse} from '../utils/ApiResponse.js';
-import { generateAccessToken, generateRefreshToken, hashPassword, verifyPassword } from '../utils/authUtils.js';
+// import { generateAccessToken, generateRefreshToken, hashPassword, verifyPassword } from '../utils/authUtils.js';
 import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+
+
 
 const prisma = new PrismaClient();
 
-const generateAccessAndRefreshTokens = async (userId) => {
-  try {
-    // Find the user by ID
-    const user = await prisma.user.findUnique({
-      where: { id: userId }
-    });
-
-    if (!user) {
-      throw new ApiError(404, "User not found");
-    }
-
-    // Generate tokens
-    const accessToken = generateAccessToken(userId);
-    const refreshToken = generateRefreshToken(userId);
-
-    // Update user with refresh token
-    await prisma.user.update({
-      where: { id: userId },
-      data: { refreshToken }
-    });
-
-    return { accessToken, refreshToken };
-  } catch (error) {
-    console.error(error); // For debugging
-    throw new ApiError(500, "Something went wrong while generating refresh and access tokens");
-  }
+const generateAccessToken = (userId) => {
+  return jwt.sign(
+    { id: userId },
+    process.env.ACCESS_TOKEN_SECRET,
+    { expiresIn: process.env.ACCESS_TOKEN_EXPIRY }
+  );
 };
+
+const generateRefreshToken = (userId) => {
+  return jwt.sign(
+    { id: userId },
+    process.env.REFRESH_TOKEN_SECRET,
+    { expiresIn: process.env.REFRESH_TOKEN_EXPIRY }
+  );
+};
+
+const hashPassword = async (password) => {
+  return await bcrypt.hash(password, 10);
+};
+
+
+  
+// const generateAccessAndRefreshTokens = async (userId) => {
+//   try {
+//     // Find the user by ID
+//     const user = await prisma.user.findUnique({
+//       where: { id: userId }
+//     });
+
+//     if (!user) {
+//       throw new ApiError(404, "User not found");
+//     }
+
+//     // Generate tokens
+//     const accessToken = generateAccessToken(userId);
+//     const refreshToken = generateRefreshToken(userId);
+
+//     // Update user with refresh token
+//     await prisma.user.update({
+//       where: { id: userId },
+//       data: { refreshToken }
+//     });
+
+//     return { accessToken, refreshToken };
+//   } catch (error) {
+//     console.error(error); // For debugging
+//     throw new ApiError(500, "Something went wrong while generating refresh and access tokens");
+//   }
+// };
 
 
 const registerUser = asyncHandler(async (req, res) => {
@@ -87,22 +112,34 @@ const registerUser = asyncHandler(async (req, res) => {
   );
 });
 
+
+const verifyPassword = async (plainPassword, hashedPassword) => {
+  if (!plainPassword || !hashedPassword) {
+    throw new Error('Both plainPassword and hashedPassword are required');
+  }
+  return await bcrypt.compare(plainPassword, hashedPassword);
+};
+
 const loginUser = asyncHandler(async (req, res) => {
   const { email, username, password } = req.body;
-
-  
 
   if (!username && !email) {
     throw new ApiError(400, "Username or Email is required");
   }
 
-  // Find user by email or username
   const user = await prisma.user.findFirst({
     where: {
       OR: [
         { username },
         { email }
       ]
+    },
+    select: {
+      id: true,
+      fullName: true,
+      email: true,
+      username: true,
+      password: true // Ensure the password field is included
     }
   });
 
@@ -110,69 +147,56 @@ const loginUser = asyncHandler(async (req, res) => {
     throw new ApiError(404, "User does not exist");
   }
 
-  // Verify password
-  const isPasswordValid = await verifyPassword(password, user.password);
-
+  const isPasswordValid = await verifyPassword(password,user.password);
 
   if (!isPasswordValid) {
     throw new ApiError(401, "Invalid user credentials");
   }
 
-  // Generate tokens
- 
-  const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(user.id); // Ensure this function is implemented
+  const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(user.id);
 
-
-  console.log(user.id)
-  
-
-
-  // Create a response object without sensitive information
-  const loggedInUser = {
-    ...user,
-    password: undefined,
-    refreshToken: undefined
-  };
-
-  // Send response
-  const options = {
-
-    httpOnly : true ,
-    secure : true 
-   
-    }
-   
-   
-     return res
-     .status(200)
-     .cookie("accessToken",accessToken,options)
-     .cookie("refreshToken",refreshToken,options)
-     .json(
-   
-       new ApiResponse(
-    
-      200,
-      {
-       user : loggedInUser , accessToken , refreshToken
-     
-     },
-   
-     "User logged in Successfully"
-   
-       )
-   
-     )   
-   
+  res
+    .status(200)
+    .cookie("accessToken", accessToken, {httpOnly:true,secure:false})
+    .cookie("refreshToken", refreshToken, {httpOnly:true,secure:false})
+    .json({
+      user: {
+        ...user,
+        password: undefined // Exclude the password before sending the response
+      },
+      accessToken,
+      refreshToken,
+      message: "User logged in Successfully"
+    });
 });
 
+
+const generateAccessAndRefreshTokens = async (userId) => {
+  try {
+    // Generate tokens
+    const accessToken = generateAccessToken(userId);
+    const refreshToken = generateRefreshToken(userId);
+
+    // Update user with refresh token
+    await prisma.user.update({
+      where: { id: userId },
+      data: { refreshToken }
+    });
+
+    return { accessToken, refreshToken };
+  } catch (error) {
+    console.error(error); // For debugging
+    throw new ApiError(500, "Something went wrong while generating refresh and access tokens");
+  }
+};
 
 
 const getMovieWithReviews = async (req, res) => {
   const { id } = req.params;
-  console.log(id);
+  // console.log(id);
   const movieId = parseInt(id, 10); // Ensure ID is an integer
 
-  console.log('Fetching movie with ID:', movieId); // Debugging statement
+  // console.log('Fetching movie with ID:', movieId); // Debugging statement
 
   try {
     const movie = await prisma.movie.findUnique({
@@ -197,71 +221,72 @@ const getMovieWithReviews = async (req, res) => {
   }
 };
 
-
 const createReview = async (req, res) => {
-  const { id } = req.params; // Movie ID from the URL
   const { reviewText, rating } = req.body;
-
-  // Extract token from headers and verify it
-  const token = req.headers.authorization?.split(' ')[1];
-  if (!token) return res.status(401).json({ error: 'No token provided' });
+  const { movieId, userId } = req.params;
 
   try {
-    // Verify the token and extract the user ID
-    const decoded = verifyToken(token); // Implement your token verification method
-    const userId = decoded.id;
-
-    // Create the review
     const review = await prisma.review.create({
       data: {
+        reviewText,
+        rating,
         movie: {
-          connect: { id: parseInt(id) } // Connect review to the movie using the movie ID
+          connect: { id: parseInt(movieId) } // Ensure movieId is an integer
         },
         user: {
-          connect: { id: userId } // Connect review to the user who created it
-        },
-        reviewText,
-        rating
+          connect: { id: parseInt(userId) } // Ensure userId is an integer
+        }
       }
     });
 
-    res.status(201).json({ review });
+    res.status(201).json(review);
   } catch (error) {
     console.error('Error creating review:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ error: 'An error occurred while creating the review.' });
   }
 };
 
 
 
+
+
+
 const updateReview = async (req, res) => {
-  const { reviewText, rating } = req.body;
-  const { reviewId } = req.params;
+  const { reviewText, rating } = req.body; // Extract rating from the request body
+  const { id } = req.params; // Ensure 'id' is used correctly
 
   try {
+    console.log('Updating review with ID:', id);
+    console.log('Update data:', { reviewText, rating });
+
     const updatedReview = await prisma.review.update({
-      where: { id: parseInt(reviewId) },
-      data: { reviewText, rating },
+      where: { id: parseInt(id) },
+      data: { reviewText, rating }, // Update both reviewText and rating
     });
+
     res.json(updatedReview);
   } catch (error) {
+    console.error('Error updating review:', error); // Log the full error
     res.status(500).json({ message: "Failed to update review" });
   }
 };
 
 // Delete review
 const deleteReview = async (req, res) => {
-  const { reviewId } = req.params;
-
+  const { id } = req.params;
   try {
-    await prisma.review.delete({
-      where: { id: parseInt(reviewId) },
+    const review = await prisma.review.delete({
+      where: {
+        id: Number(id),
+      },
     });
-    res.status(204).send(); // No content to return
+    res.status(200).json({ message: 'Review deleted successfully' });
   } catch (error) {
-    res.status(500).json({ message: "Failed to delete review" });
+    console.error('Error deleting review:', error);
+    res.status(500).json({ message: 'Server error', error });
   }
 };
+
 
 
 const getCurrentUser = asyncHandler(async(req,res)=>{
@@ -285,6 +310,25 @@ const getMovieWithDetails = async (req, res) => {
   }
 };
 
+
+
+const logoutUser = asyncHandler(async (req, res) => {
+  res
+    .clearCookie('accessToken', {
+      httpOnly: true,
+      secure: true, // Set to true if using HTTPS
+      sameSite: 'strict', // Adjust based on your needs
+    })
+    .clearCookie('refreshToken', {
+      httpOnly: true,
+      secure: true, // Set to true if using HTTPS
+      sameSite: 'strict', // Adjust based on your needs
+    })
+    .status(200)
+    .json({ message: 'User logged out successfully' });
+});
+
+
 export {
    registerUser,
    loginUser,
@@ -294,6 +338,7 @@ export {
    getCurrentUser,
    updateReview,
    deleteReview,
-   getMovieWithDetails
+   getMovieWithDetails,
+   logoutUser
 
 };

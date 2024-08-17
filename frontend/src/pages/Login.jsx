@@ -22,7 +22,10 @@ function Login() {
         password
       });
 
-      navigate("/movies");
+
+       console.log(res)
+
+      navigate(`/movies/${res.data.user.id}`);
       // console.log('Response:', res.data); // Handle the response data as needed
     } catch (error) {
       console.error('Error:', error); // Handle any errors

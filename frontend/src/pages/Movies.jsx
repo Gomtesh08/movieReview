@@ -1,10 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import Appbar from '../components/Appbar';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import axios from 'axios';
 
 function Movies() {
   const [movies, setMovies] = useState([]);
+  const [userid, setUserId] = useState(0);
+  const { id } = useParams();
+
+  useEffect(() => {
+    if (id) {
+      setUserId(id); // Update userId when id changes
+    }
+  }, [id]); // Dependency array includes id
 
   useEffect(() => {
     // Fetch movie data from the API
@@ -22,12 +30,10 @@ function Movies() {
 
   return (
     <div>
-      <div>
-        <Appbar />
-      </div>
+      <Appbar />
       <div className="grid grid-cols-3 gap-4 w-11/12 cursor-pointer mx-auto mt-10">
         {movies.map((movie) => (
-          <Link to={`/getmoviewithreviews/${movie.id}`} key={movie.id}>
+          <Link to={`/movies/${userid}/getmoviewithreviews/${movie.id}`} key={movie.id}>
             <div className="rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden bg-white">
               <div className="grid grid-cols-3 gap-1 h-64">
                 <div className="col-span-1">
