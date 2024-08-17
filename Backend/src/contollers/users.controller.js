@@ -198,23 +198,28 @@ const getMovieWithReviews = async (req, res) => {
 };
 
 
-// Controller to create a review for a movie
 const createReview = async (req, res) => {
-  // const { id } = req.params;
+  const { id } = req.params; // Movie ID from the URL
   const { reviewText, rating } = req.body;
 
   // Extract token from headers and verify it
-  // const token = req.headers.authorization?.split(' ')[1];
-  // if (!token) return res.status(401).json({ error: 'No token provided' });
+  const token = req.headers.authorization?.split(' ')[1];
+  if (!token) return res.status(401).json({ error: 'No token provided' });
 
   try {
-    // const decoded = verifyToken(token); // Use your token verification method
-    // const userId = decoded.id;
+    // Verify the token and extract the user ID
+    const decoded = verifyToken(token); // Implement your token verification method
+    const userId = decoded.id;
 
     // Create the review
     const review = await prisma.review.create({
       data: {
-        // movieId: parseInt(id),
+        movie: {
+          connect: { id: parseInt(id) } // Connect review to the movie using the movie ID
+        },
+        user: {
+          connect: { id: userId } // Connect review to the user who created it
+        },
         reviewText,
         rating
       }
@@ -226,6 +231,7 @@ const createReview = async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+
 
 
 const updateReview = async (req, res) => {
