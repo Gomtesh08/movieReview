@@ -226,10 +226,17 @@ const createReview = async (req, res) => {
   const { movieId, userId } = req.params;
 
   try {
+    // Ensure rating is an integer
+    const ratingInt = parseInt(rating, 10);
+    
+    if (isNaN(ratingInt)) {
+      return res.status(400).json({ error: 'Invalid rating value.' });
+    }
+
     const review = await prisma.review.create({
       data: {
         reviewText,
-        rating,
+        rating: ratingInt, // Use the integer rating value
         movie: {
           connect: { id: parseInt(movieId) } // Ensure movieId is an integer
         },
@@ -256,20 +263,27 @@ const updateReview = async (req, res) => {
   const { id } = req.params; // Ensure 'id' is used correctly
 
   try {
+    // Log the incoming data
     console.log('Updating review with ID:', id);
     console.log('Update data:', { reviewText, rating });
 
+    // Convert rating to integer
+    const ratingInt = parseInt(rating, 10);
+
+    // Update the review
     const updatedReview = await prisma.review.update({
-      where: { id: parseInt(id) },
-      data: { reviewText, rating }, // Update both reviewText and rating
+      where: { id: parseInt(id, 10) }, // Ensure id is an integer
+      data: { reviewText, rating: ratingInt }, // Convert rating to integer
     });
 
     res.json(updatedReview);
   } catch (error) {
-    console.error('Error updating review:', error); // Log the full error
+    // Log the full error
+    console.error('Error updating review:', error);
     res.status(500).json({ message: "Failed to update review" });
   }
 };
+
 
 // Delete review
 const deleteReview = async (req, res) => {

@@ -1,148 +1,262 @@
-/* Movie Component Styles */
-
-/* Container for the movie details and reviews */
+/* Movie Details Section */
 .movie-container {
-    width: 92%;
-    margin: 0 auto;
-    padding: 20px;
-  }
-  
-  /* Styling for the movie details section */
-  .movie-details {
-    background-color: #f8f8f8;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  }
-  
-  .movie-image {
-    height: 100%;
-    width: 100%;
-    object-fit: cover;
-    border-radius: 10px;
-  }
-  
-  .movie-info {
-    padding: 10px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-  }
-  
-  .movie-title {
-    font-size: 2rem;
-    color: #333;
-    margin-bottom: 10px;
-  }
-  
-  .movie-description {
-    font-size: 1.2rem;
-    color: #555;
-  }
-  
-  /* TextInputForm styling (if needed) */
-  .text-input-form {
-    margin-top: 20px;
-  }
-  
-  /* Reviews Section */
-  .reviews-container {
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    margin-top: 20px;
-  }
-  
-  .review-item {
-    border-bottom: 1px solid #ddd;
-    padding: 10px 0;
-  }
-  
-  .review-user {
-    font-weight: bold;
-    margin-bottom: 5px;
-  }
-  
-  .review-text {
-    font-size: 1rem;
-    color: #444;
-  }
-  
-  .review-actions {
-    margin-top: 10px;
-  }
-  
-  .review-button {
-    padding: 5px 10px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    margin-right: 5px;
-    transition: background-color 0.3s, transform 0.3s;
-  }
-  
-  .review-button-edit {
-    background-color: #007bff;
-    color: #fff;
-  }
-  
-  .review-button-edit:hover {
-    background-color: #0056b3;
-    transform: scale(1.05);
-  }
-  
-  .review-button-delete {
-    background-color: #dc3545;
-    color: #fff;
-  }
-  
-  .review-button-delete:hover {
-    background-color: #c82333;
-    transform: scale(1.05);
-  }
-  
-  .review-button:focus {
-    outline: none;
-  }
-  
-  /* Movie Component Styles */
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  font-family: 'Arial', sans-serif;
+}
 
-/* Existing styles remain unchanged */
+.movie-details {
+  background: linear-gradient(135deg, #f5f5f5, #ffffff);
+  border-radius: 15px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  padding: 20px;
+  overflow: hidden;
+}
 
-/* Reviews Headline */
+.movie-image {
+  width: 100%;
+  height: auto;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s ease-in-out;
+}
+
+.movie-image:hover {
+  transform: scale(1.05);
+}
+
+.movie-info {
+  padding: 20px;
+}
+
+.movie-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 15px;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.movie-description {
+  font-size: 1.1rem;
+  color: #555;
+  line-height: 1.8;
+  letter-spacing: 0.5px;
+}
+
+/* Add Review Section */
+.add-review-container {
+  margin-top: 20px;
+  padding: 20px;
+  background: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.add-review-heading {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 15px;
+}
+
+.add-review-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.add-review-form input,
+.add-review-form textarea {
+  width: 100%;
+  padding: 12px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  margin-bottom: 15px;
+  transition: border-color 0.3s ease;
+}
+
+.add-review-form input:focus,
+.add-review-form textarea:focus {
+  border-color: #3498db;
+  outline: none;
+}
+
+.add-review-form textarea {
+  height: 120px;
+  resize: vertical;
+}
+
+.add-review-form input[type="number"] {
+  width: 100%;
+}
+
+.add-review-form button {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 6px;
+  background-color: #28a745;
+  color: #fff;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.add-review-form button:hover {
+  background-color: #218838;
+  transform: translateY(-2px);
+}
+
+.add-review-form .error-message {
+  color: #dc3545;
+  font-size: 0.9rem;
+  margin-top: -10px;
+  margin-bottom: 10px;
+}
+
+/* Reviews Section */
+.reviews-container {
+  background-color: #ffffff;
+  border-radius: 15px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  padding: 20px;
+  margin-top: 20px;
+}
+
 .reviews-headline {
-    font-size: 1.5rem;
-    color: #333;
-    margin-bottom: 20px;
-    font-weight: bold;
-  }
-  /* Movie Component Styles */
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #ecf0f1;
+  padding-bottom: 10px;
+  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.05);
+}
 
-/* Existing styles remain unchanged */
+.review-item {
+  background-color: #f9f9f9;
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  position: relative;
+  transition: transform 0.3s ease;
+}
 
-/* Review Actions */
+.review-item:hover {
+  transform: scale(1.02);
+}
+
+.review-user {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #34495e;
+  margin-bottom: 10px;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.review-text {
+  font-size: 1.1rem;
+  color: #555;
+  margin-bottom: 10px;
+  line-height: 1.6;
+}
+
+.review-rating {
+  font-size: 1.2rem;
+  color: #f39c12;
+  font-weight: 700;
+}
+
 .review-actions {
-    margin-top: 10px;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  gap: 10px;
+}
+
+.review-button {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 4px;
+  color: #fff;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.review-button-edit {
+  background-color: #ffa500;
+}
+
+.review-button-delete {
+  background-color: #e74c3c;
+}
+
+.review-button:hover {
+  transform: translateY(-2px);
+}
+
+.review-button-edit:hover {
+  background-color: #ff8c00;
+}
+
+.review-button-delete:hover {
+  background-color: #c0392b;
+}
+
+/* Edit Review Form */
+.edit-review-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.edit-review-form textarea,
+.edit-review-form input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+}
+
+.review-button-submit {
+  background-color: #4caf50;
+}
+
+.review-button-cancel {
+  background-color: #e74c3c;
+}
+
+.review-button-submit:hover {
+  background-color: #45a049;
+}
+
+.review-button-cancel:hover {
+  background-color: #c0392b;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .movie-details {
+    grid-template-columns: 1fr;
+    text-align: center;
   }
-  
-  .review-button {
-    padding: 6px 12px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.875rem;
+
+  .movie-image {
+    margin-bottom: 20px;
   }
-  
-  .review-button-edit {
-    background-color: #007bff;
-    color: #fff;
-    margin-right: 8px;
+
+  .movie-info {
+    padding: 0;
   }
-  
-  .review-button-delete {
-    background-color: #dc3545;
-    color: #fff;
+
+  .add-review-form {
+    padding: 0;
   }
-  
+
+  .reviews-container {
+    padding: 10px;
+  }
+}
